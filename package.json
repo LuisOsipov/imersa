@@ -1,0 +1,8 @@
+{
+  "name": "imersa",
+  "version": "1.0.0",
+  "description": "Dicionário de idiomas por imersão",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
