@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Imersa — aprenda sem traduzir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0E1B2C;--paper:#F2F5FB;--card:#FFFFFF;--ink:#0E1B2C;--muted:#5D6B82;--line:#DCE3EF;--blue:#3D5AFE;--lime:#C6F432;
+--a1:#C6F432;--b1:#5CC8FF;--c1:#B69BFF;--s1:#FFC857;--s2:#FF9F7A;--serif:"Instrument Serif",Georgia,serif;--sans:"Figtree",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#09121F;--card:#111F36;--ink:#EAF0FB;--muted:#93A3BD;--line:#223250}}
+:root[data-theme="dark"]{--paper:#09121F;--card:#111F36;--ink:#EAF0FB;--muted:#93A3BD;--line:#223250}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--sans);min-height:100vh}
+:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer}
+.in{max-width:940px;margin:0 auto;padding:0 22px}
+.top{color:#fff;padding:22px 0 120px;background:radial-gradient(800px 420px at 88% -10%,#3552F0 0,transparent 62%),radial-gradient(520px 360px at 0% 100%,#18808F66 0,transparent 70%),var(--navy)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font:400 30px var(--serif)}.logo i{color:var(--lime)}
+.opts{display:flex;gap:8px}
+select,.ghost{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 14px;color:#fff;font:500 14px var(--sans)}
+select option{color:#000}
+.hero{padding:56px 0 0}
+h1{font:400 clamp(44px,8vw,84px)/.98 var(--serif);margin:0 0 18px;max-width:13ch}
+.sub{color:#B8C6E0;max-width:50ch;margin:0 0 30px}
+.search{display:flex;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 18px 50px -18px rgba(0,0,0,.6)}
+.search input{flex:1;min-width:0;border:0;background:transparent;color:#0E1B2C;font:400 26px var(--serif);padding:18px 22px}
+.search input:focus{outline:none}
+.search:focus-within{box-shadow:0 0 0 4px rgba(198,244,50,.6)}
+.search button{border:0;background:var(--lime);color:#0E1B2C;font-weight:700;padding:0 30px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center;color:#B8C6E0;font-size:14px}
+.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:4px 14px;font-size:14px}
+.chip:hover{background:rgba(255,255,255,.22)}
+.res{margin-top:-78px;padding-bottom:70px}
+.levels{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.lv{border:0;background:var(--card);border-radius:14px;padding:9px 16px;text-align:left;font-size:14px;box-shadow:0 6px 20px -10px rgba(14,27,44,.5);border-bottom:4px solid var(--c)}
+.lv b{display:block}.lv span{color:var(--muted);font-size:12px}
+.lv[data-k="A1"]{--c:var(--a1)}.lv[data-k="B1"]{--c:var(--b1)}.lv[data-k="C1"]{--c:var(--c1)}
+.lv[aria-pressed="true"]{background:var(--c);color:#0E1B2C}.lv[aria-pressed="true"] span{color:#0E1B2Cb0}
+.card{--c:var(--a1);background:var(--card);border-radius:26px;overflow:hidden;display:grid;grid-template-columns:5fr 6fr;box-shadow:0 30px 70px -30px rgba(14,27,44,.55)}
+.card[data-lv="B1"]{--c:var(--b1)}.card[data-lv="C1"]{--c:var(--c1)}.card[data-h="1"]{--c:var(--s1)}.card[data-h="2"]{--c:var(--s2)}
+.pic{position:relative;min-height:360px;background:linear-gradient(140deg,var(--c),#fff0);display:grid;place-items:center}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pic .emo{font-size:130px}
+.credit{position:absolute;left:12px;bottom:10px;font-size:11px;background:rgba(14,27,44,.7);color:#fff;padding:2px 9px;border-radius:6px}
+.body{padding:30px 32px 24px}
+.badge{display:inline-block;background:var(--c);color:#0E1B2C;font-weight:600;font-size:13px;border-radius:999px;padding:3px 12px}
+.word{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:12px}
+.word h2{font:400 clamp(48px,7vw,76px)/1 var(--serif);margin:0}
+.ipa{color:var(--muted)}
+.play{display:inline-flex;align-items:center;gap:8px;border:0;background:var(--ink);color:var(--paper);border-radius:999px;padding:9px 18px 9px 13px;font-weight:600;font-size:14px;margin:16px 0 4px}
+.play svg{width:18px;height:18px;fill:currentColor}
+.play.on{animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--ink) 20%,transparent)}}
+.def{font:400 25px/1.4 var(--serif);margin:14px 0 0}
+.row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.help{border:2px solid var(--ink);background:transparent;border-radius:999px;padding:7px 18px;font-weight:600;font-size:14px}
+.help:hover{background:var(--c);border-color:var(--c);color:#0E1B2C}
+.back{border:0;background:transparent;color:var(--muted);text-decoration:underline;font-size:14px}
+.ex{grid-column:1/-1;background:color-mix(in srgb,var(--c) 12%,var(--card));padding:8px 32px 14px}
+.ex h3{font-size:14px;font-weight:600;color:var(--muted);margin:14px 0 4px}
+.ex ol{list-style:none;margin:0;padding:0}
+.ex li{display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid color-mix(in srgb,var(--ink) 10%,transparent)}
+.ex li:last-child{border:0}
+.ex li button{flex:none;width:38px;height:38px;border-radius:50%;border:0;background:var(--c);color:#0E1B2C;display:grid;place-items:center}
+.ex li svg{width:15px;height:15px;fill:currentColor}
+mark{background:var(--c);color:#0E1B2C;padding:0 4px;border-radius:4px}
+.empty{padding:40px;background:var(--card);border-radius:22px;text-align:center;color:var(--muted)}
+.sug{border:0;background:var(--lime);color:#0E1B2C;font:600 18px var(--sans);border-radius:999px;padding:4px 16px;margin:6px 2px}
+.note{margin-top:26px;font-size:13px;color:var(--muted)}
+@media(max-width:700px){.card{grid-template-columns:1fr}.pic{min-height:230px}.body,.ex{padding-left:22px;padding-right:22px}}
+@media(prefers-reduced-motion:reduce){.play.on{animation:none}}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <header>
+    <div class="logo">imersa<i>.</i></div>
+    <div class="opts">
+      <select id="lang" aria-label="Idioma"></select>
+      <button class="ghost" id="theme" aria-label="Alternar tema">Tema</button>
+    </div>
+  </header>
+  <section class="hero">
+    <h1>Entenda a palavra sem traduzi-la.</h1>
+    <p class="sub">Cada palavra é explicada no próprio idioma, no seu nível, com imagem, três frases e áudio. Sem tradução: o significado se forma por contexto.</p>
+    <form class="search" id="form" role="search">
+      <input id="q" type="text" placeholder="bread" autocomplete="off" autocapitalize="off" aria-label="Palavra">
+      <button type="submit">Explicar</button>
+    </form>
+    <div class="chips" id="chips"><span>Experimente:</span></div>
+  </section>
+</div></div>
+<div class="in res">
+  <div class="levels" id="levels" role="group" aria-label="Nível"></div>
+  <main id="out" aria-live="polite"></main>
+  <p class="note">Áudio gerado pela voz do seu navegador. Imagens da Wikipédia/Wikimedia Commons quando disponíveis.</p>
+</div>
+
+<script>
+/* ============ CONFIGURAÇÃO ============ */
+// Para aceitar QUALQUER palavra, aponte para o seu backend (veja instruções no final).
+// Ele deve responder JSON: { ipa, emoji, A1:{def,ex:[3]}, B1:{...}, C1:{...} }
+const API_URL = "/api/explain";           // ex.: "https://seusite.com/api/explain"
+// Para adicionar um idioma: 1) uma linha aqui (voz = código do áudio, wiki = código da Wikipédia)
+// 2) (opcional) palavras de demonstração em DB. Com o backend de IA, basta a linha aqui.
+const LANGS = {
+  en:{name:"English",  voice:"en-US", wiki:"en"},
+  es:{name:"Español",  voice:"es-ES", wiki:"es"},
+  fr:{name:"Français", voice:"fr-FR", wiki:"fr"},
+  de:{name:"Deutsch",  voice:"de-DE", wiki:"de"},
+  it:{name:"Italiano", voice:"it-IT", wiki:"it"},
+  ja:{name:"日本語",    voice:"ja-JP", wiki:"ja"},
+  zh:{name:"中文",      voice:"zh-CN", wiki:"zh"}
+};
+
+/* ============ BASE DE DEMONSTRAÇÃO ============ */
+const DB = { en:{
+ umbrella:{ipa:"/ʌmˈbrelə/",emoji:"☂️",
+  A1:{def:"You hold it over your head when water falls from the sky. It keeps you dry.",ex:["I take my umbrella to work today.","The umbrella is red and big.","She has no umbrella, and she is wet."]},
+  B1:{def:"A round cover on a stick that you open to protect yourself from rain or, sometimes, from strong sun.",ex:["Don't forget your umbrella; it looks like rain.","He shared his umbrella with a stranger at the bus stop.","The wind broke my umbrella on the way home."]},
+  C1:{def:"A collapsible canopy mounted on a handle, used as shelter from precipitation; figuratively, a single body or idea that shelters many smaller ones.",ex:["Several charities operate under the umbrella of one larger foundation.","She kept a compact umbrella in her bag for sudden downpours.","The umbrella term covers a wide range of related conditions."]}},
+ lighthouse:{ipa:"/ˈlaɪt.haʊs/",emoji:"🗼",
+  A1:{def:"A tall building by the sea. It has a big light at the top. Ships see the light at night.",ex:["The lighthouse is near the water.","At night, the lighthouse light is bright.","We visit the lighthouse on Sunday."]},
+  B1:{def:"A tower on the coast with a powerful light that warns ships about dangerous rocks and shows them where land is.",ex:["The old lighthouse guided sailors safely for two hundred years.","We climbed 200 steps to the top of the lighthouse.","A keeper used to live in the lighthouse and light the lamp every evening."]},
+  C1:{def:"A coastal tower equipped with a beacon to aid navigation; figuratively, a person or thing that offers guidance in difficult times.",ex:["During the crisis, her calm voice was a lighthouse for the whole team.","The lighthouse swept its beam across the fog-covered bay.","Automated lighthouses have largely replaced resident keepers."]}},
+ whisper:{ipa:"/ˈwɪs.pər/",emoji:"🤫",
+  A1:{def:"To speak very, very quietly. Only a person near you can hear.",ex:["Please whisper in the library.","He whispers to his friend.","The baby is sleeping, so we whisper."]},
+  B1:{def:"To speak in a very soft voice, using your breath more than your voice, so that others do not hear.",ex:["She whispered a secret in my ear.","They whispered during the movie and got angry looks.","I heard someone whisper my name in the dark."]},
+  C1:{def:"To speak or convey something in hushed tones, often confidentially; also, to make a soft, rustling sound, or to circulate as a rumour.",ex:["It is whispered that the company will soon be sold.","The leaves whispered in the evening breeze.","He whispered his objections so as not to disrupt the meeting."]}},
+ nostalgia:{ipa:"/nɒˈstæl.dʒə/",emoji:"📼",
+  A1:{def:"A warm and a little sad feeling when you remember good days from before.",ex:["I feel nostalgia when I see my old school.","This song gives me nostalgia.","Grandma looks at old photos with nostalgia."]},
+  B1:{def:"A mix of happiness and sadness that you feel when you think about a happy time in your past that you cannot return to.",ex:["The smell of fresh bread filled him with nostalgia.","Many people feel nostalgia for the games of their childhood.","She watched the old film with a sense of nostalgia."]},
+  C1:{def:"A sentimental longing for a period or place in the past, typically one idealised in memory, often tinged with wistfulness.",ex:["The reunion was steeped in nostalgia for a simpler era.","Critics accused the director of indulging in cheap nostalgia.","Nostalgia can distort how accurately we remember the past."]}},
+ harvest:{ipa:"/ˈhɑː.vɪst/",emoji:"🌾",
+  A1:{def:"The time when farmers take the food from the plants in the field.",ex:["The harvest is in autumn.","Farmers work hard at harvest time.","We eat fresh corn after the harvest."]},
+  B1:{def:"The gathering of crops when they are ripe, or the amount of crops collected. As a verb, to pick or collect them.",ex:["This year's wheat harvest was excellent.","They harvest the grapes by hand every September.","Bad weather ruined much of the harvest."]},
+  C1:{def:"The process or season of gathering mature crops; by extension, the yield obtained, or the benefits reaped from prolonged effort.",ex:["After years of research, the team finally reaped the harvest of its patience.","A poor harvest drove food prices sharply upward.","Mechanised harvesting has transformed rural labour."]}}
+},
+es:{ paraguas:{ipa:"/paˈɾaɣwas/",emoji:"☂️",
+  A1:{def:"Lo usas cuando llueve. Lo abres encima de tu cabeza y no te mojas.",ex:["Llevo mi paraguas al trabajo.","El paraguas es grande y rojo.","Hoy llueve, necesito un paraguas."]},
+  B1:{def:"Objeto con una tela redonda y un palo que se abre para protegerte de la lluvia o, a veces, del sol fuerte.",ex:["No olvides el paraguas; parece que va a llover.","Compartió su paraguas con un desconocido en la parada.","El viento rompió mi paraguas de camino a casa."]},
+  C1:{def:"Utensilio plegable de armazón cubierto de tela impermeable, que resguarda de la precipitación; en sentido figurado, aquello que ampara bajo una misma cobertura.",ex:["Varias asociaciones operan bajo el paraguas de una fundación mayor.","Guardaba un paraguas plegable en el bolso por si caía un chaparrón.","El paraguas legal de la norma cubre casos muy diversos."]}}
+},
+fr:{ parapluie:{ipa:"/pa.ʁa.plɥi/",emoji:"☂️",
+  A1:{def:"On l'ouvre quand il pleut. Il protège ta tête de l'eau.",ex:["Je prends mon parapluie ce matin.","Le parapluie est grand et bleu.","Il pleut, j'ai besoin d'un parapluie."]},
+  B1:{def:"Objet fait d'un tissu rond sur un bâton, qu'on ouvre pour se protéger de la pluie ou parfois du soleil.",ex:["N'oublie pas ton parapluie, il va pleuvoir.","Elle a partagé son parapluie avec un inconnu à l'arrêt de bus.","Le vent a cassé mon parapluie en rentrant."]},
+  C1:{def:"Ustensile pliant à armature recouverte de toile imperméable, qui abrite des intempéries; au sens figuré, ce qui protège ou rassemble sous une même autorité.",ex:["Plusieurs associations travaillent sous le parapluie d'une grande fondation.","Il gardait un parapluie pliant dans son sac en cas d'averse.","Le parapluie d'un allié puissant peut rassurer un petit pays."]}}
+},
+de:{ regenschirm:{word:"Regenschirm",ipa:"/ˈʁeːɡn̩ʃɪʁm/",emoji:"☂️",
+  A1:{def:"Du hältst ihn über deinen Kopf, wenn es regnet. Dann wirst du nicht nass.",ex:["Ich nehme meinen Regenschirm mit.","Der Regenschirm ist groß und rot.","Es regnet, ich brauche einen Regenschirm."]},
+  B1:{def:"Ein runder Schutz aus Stoff an einem Stock, den man aufspannt, damit man bei Regen trocken bleibt.",ex:["Vergiss deinen Regenschirm nicht, es sieht nach Regen aus.","Er teilte seinen Regenschirm mit einem Fremden an der Haltestelle.","Der Wind hat meinen Regenschirm kaputt gemacht."]},
+  C1:{def:"Ein zusammenklappbares Gestell mit wasserabweisender Bespannung, das vor Niederschlag schützt; im übertragenen Sinn ein Schutz, der vieles unter einem Dach vereint.",ex:["Der Verband spannt einen Regenschirm über viele kleine Vereine.","Sie trug stets einen Taschenregenschirm für plötzliche Schauer bei sich.","Bei Sturm nützt dir auch der beste Regenschirm nichts."]}}
+},
+it:{ ombrello:{ipa:"/omˈbrɛllo/",emoji:"☂️",
+  A1:{def:"Lo apri quando piove. Sta sopra la tua testa e non ti bagni.",ex:["Prendo l'ombrello per andare al lavoro.","L'ombrello è grande e rosso.","Piove, ho bisogno di un ombrello."]},
+  B1:{def:"Oggetto con una stoffa tonda e un manico che si apre per proteggersi dalla pioggia o, a volte, dal sole forte.",ex:["Non dimenticare l'ombrello, sembra che pioverà.","Ha diviso il suo ombrello con uno sconosciuto alla fermata.","Il vento ha rotto il mio ombrello mentre tornavo a casa."]},
+  C1:{def:"Arnese pieghevole con armatura coperta di tessuto impermeabile, usato come riparo dalle precipitazioni; in senso figurato, ciò che offre protezione sotto un'unica egida.",ex:["Diverse associazioni operano sotto l'ombrello di una grande fondazione.","Teneva sempre in borsa un ombrello tascabile per gli acquazzoni improvvisi.","L'ombrello della legge non copre tutte le situazioni."]}}
+}};
+
+/* ============ ESTADO ============ */
+const $ = s => document.querySelector(s);
+let lastErr = "", lastSug = "";
+let lang = "en", level = "A1", current = null, currentKey = "";
+const LEVELS = [["A1","Iniciante","frases curtas"],["B1","Intermediário","ideias claras"],["C1","Avançado","nuances"]];
+const ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l5 4V6L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>';
+
+/* ============ ÁUDIO (Web Speech API) ============ */
+function speak(text, btn){
+  if(!("speechSynthesis" in window)) return alert("Seu navegador não suporta áudio por voz.");
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = LANGS[lang].voice; u.rate = btn && btn.classList.contains("play") ? .85 : .95;
+  const v = speechSynthesis.getVoices().find(v => v.lang === u.lang);
+  if(v) u.voice = v;
+  if(btn){ btn.classList.add("on"); u.onend = u.onerror = () => btn.classList.remove("on"); }
+  speechSynthesis.speak(u);
+}
+
+/* ============ IMAGEM (Wikipédia, sem chave de API) ============ */
+async function fetchImage(word){
+  try{
+    const url = `https://${LANGS[lang].wiki}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(word)}&gsrlimit=3&prop=pageimages&piprop=thumbnail&pithumbsize=700&format=json&origin=*`;
+    const r = await (await fetch(url)).json();
+    const pages = Object.values(r.query?.pages || {}).sort((a,b)=>a.index-b.index);
+    const p = pages.find(p => p.thumbnail);
+    return p ? {src:p.thumbnail.source, credit:"Wikipedia: "+p.title} : null;
+  }catch(e){ return null; }
+}
+
+/* ============ DADOS ============ */
+async function loadLevel(word, lv){
+  const local = (DB[lang] || {})[word];
+  if(local && !/^S/.test(lv)) return local;
+  if(!API_URL) return null;
+  try{
+    lastSug = ""; const r = await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({word,lang,level:lv})});
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok){ lastSug = j.suggestion || ""; throw new Error(j.error || ("Erro "+r.status)); }
+    return j;
+  }catch(e){ lastErr = e.message; return null; }
+}
+
+/* ============ RENDER ============ */
+const esc = s => s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function hl(sentence, word){
+  const stem = word.length>4 ? word.slice(0,-1) : word;
+  return esc(sentence).replace(new RegExp("(?<!\\p{L})("+stem.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\p{L}*)","giu"),"<mark>$1</mark>");
+}
+function render(){
+  if(!current) return;
+  const help = current.help||0, d = current[help ? "S"+help : level], w = currentKey;
+  if(!d) return;
+  const lvName = (LEVELS.find(l=>l[0]===level)||[])[1]||"";
+  const badge = help===1 ? "Versão mais simples" : help===2 ? "Versão simplíssima" : level+" · "+lvName;
+  $("#out").innerHTML = `
+  <article class="card" data-lv="${level}" data-h="${help}">
+    <div class="pic" id="pic"><span class="emo" aria-hidden="true">${current.emoji||"💬"}</span></div>
+    <div class="body">
+      <span class="badge">${badge}</span>
+      <div class="word"><h2>${esc(current.word||w)}</h2><span class="ipa">${esc(current.ipa||"")}</span></div>
+      <button class="play" id="say" aria-label="Ouvir a pronúncia">${ICON} Ouvir</button>
+      <p class="def">${esc(d.def)}</p>
+      <div class="row">
+        ${help<2 ? `<button class="help" id="help">${help ? "Ainda não entendi" : "Não entendi"}</button>` : ""}
+        ${help ? `<button class="back" id="back">Voltar ao nível ${level}</button>` : ""}
+      </div>
+    </div>
+    <div class="ex"><h3>Veja em uso</h3><ol>
+      ${d.ex.slice(0,3).map((s,i)=>`<li><button data-i="${i}" aria-label="Ouvir frase ${i+1}">${ICON}</button><span>${hl(s,w)}</span></li>`).join("")}
+    </ol></div>
+  </article>`;
+  $("#say").onclick = e => speak(w, e.currentTarget);
+  document.querySelectorAll(".ex li button").forEach(b => b.onclick = () => speak(d.ex[b.dataset.i]));
+  if($("#help")) $("#help").onclick = needHelp;
+  if($("#back")) $("#back").onclick = () => { current.help = 0; render(); };
+  const putImg = img => {
+    const pic = $("#pic"); if(!pic) return;
+    pic.insertAdjacentHTML("afterbegin",`<img alt="" src="${img.src}"><span class="credit">${esc(img.credit)}</span>`);
+    pic.querySelector(".emo")?.remove();
+  };
+  if(current.img) putImg(current.img);
+  else fetchImage(w).then(img => { if(img && currentKey===w){ current.img = img; putImg(img); } });
+}
+async function needHelp(){
+  const w = currentKey, next = (current.help||0)+1, key = "S"+next, btn = $("#help");
+  if(!current[key]){
+    btn.textContent = "Preparando…"; btn.disabled = true;
+    const e = await loadLevel(w, key);
+    if(currentKey!==w) return;
+    if(!e || !e.def){ btn.textContent = "Não consegui agora. Tente de novo"; btn.disabled = false; return; }
+    current[key] = {def:e.def, ex:e.ex};
+  }
+  current.help = next; render();
+}
+const showErr = w => {
+  const sug = lastSug && lastSug.toLowerCase()!==w ? lastSug : "";
+  $("#out").innerHTML = `<div class="empty">` + (sug
+    ? `Não encontrei “${esc(w)}”.<br>Você quis dizer <button class="sug" id="sug">${esc(sug)}</button>?`
+    : `“${esc(w)}” não foi encontrada.<br>Confira a grafia e o idioma selecionado.<br><small>Detalhe: ${esc(lastErr || "sem resposta do servidor")}</small>`) + `</div>`;
+  if(sug) $("#sug").onclick = () => { $("#q").value = sug; lookup(sug); };
+};
+async function lookup(raw){
+  const w = raw.trim().toLowerCase(); if(!w) return;
+  currentKey = w; current = null;
+  $("#out").innerHTML = '<div class="empty">Procurando…</div>';
+  const e = await loadLevel(w, level);
+  if(currentKey!==w) return;
+  if(!e) return showErr(w);
+  current = (e.A1 || e.B1 || e.C1) ? e : {word:e.word, ipa:e.ipa, emoji:e.emoji, [level]:{def:e.def, ex:e.ex}};
+  render();
+}
+async function ensureLevel(){
+  if(!currentKey) return;
+  if(current && current[level]) return render();
+  const w = currentKey, lv = level;
+  $("#out").innerHTML = '<div class="empty">Preparando este nível…</div>';
+  const e = await loadLevel(w, lv);
+  if(currentKey!==w || level!==lv) return;
+  if(!e) return showErr(w);
+  current = current || {word:e.word, ipa:e.ipa, emoji:e.emoji};
+  current[lv] = {def:e.def, ex:e.ex}; render();
+}
+function drawLevels(){
+  $("#levels").innerHTML = LEVELS.map(([k,n,s]) =>
+    `<button class="lv" data-k="${k}" aria-pressed="${k===level}"><b>${k} · ${n}</b><span>${s}</span></button>`).join("");
+  document.querySelectorAll(".lv").forEach(b => b.onclick = () => { level = b.dataset.k; if(current) current.help = 0; drawLevels(); ensureLevel(); });
+}
+
+/* ============ INÍCIO ============ */
+function drawChips(){
+  $("#chips").innerHTML = "<span>Experimente:</span>";
+  Object.keys(DB[lang] || {}).forEach(w => {
+    const c = document.createElement("button"); c.className="chip"; c.type="button"; c.textContent=w;
+    c.onclick = () => { $("#q").value=w; lookup(w); }; $("#chips").append(c);
+  });
+}
+$("#lang").innerHTML = Object.entries(LANGS).map(([k,v]) => `<option value="${k}">${v.name}</option>`).join("");
+drawChips();
+$("#form").onsubmit = e => { e.preventDefault(); lookup($("#q").value); };
+$("#lang").onchange = e => {
+  lang = e.target.value; current = null; currentKey = "";
+  $("#out").innerHTML = ""; $("#q").value = ""; speechSynthesis.cancel(); drawChips();
+};
+let darkOn = matchMedia("(prefers-color-scheme: dark)").matches;
+$("#theme").onclick = () => { darkOn = !darkOn; document.documentElement.dataset.theme = darkOn ? "dark" : "light"; };
+if("speechSynthesis" in window) speechSynthesis.getVoices();
+const SAMPLES = ["bread","pan","pain","Brot","pane","パン","面包"]; let si = 0;
+setInterval(() => { if(document.activeElement!==$("#q")) $("#q").placeholder = SAMPLES[si = (si+1)%SAMPLES.length]; }, 2200);
+drawLevels();
+
+/* =====================================================================
+   COMO LIGAR A IA (para qualquer palavra) — backend de exemplo (Node):
+
+   app.post("/api/explain", async (req,res)=>{
+     const {word,lang} = req.body;
+     const r = await fetch("https://api.anthropic.com/v1/messages",{
+       method:"POST",
+       headers:{"x-api-key":process.env.ANTHROPIC_API_KEY,"anthropic-version":"2023-06-01","content-type":"application/json"},
+       body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,
+         system:`You are a monolingual dictionary for language learners. NEVER translate
+         and NEVER use Portuguese. Write everything in the requested language code (en, es, fr, de, it, ja, zh...). For the word given, answer ONLY with JSON:
+         {"word":"","ipa":"","emoji":"",
+          "A1":{"def":"","ex":["","",""]},"B1":{...},"C1":{...}}
+         A1: max 8-word sentences, 500 most common words. B1: clear everyday language.
+         C1: precise, nuanced, include figurative uses. Exactly 3 simple example
+         sentences per level, each containing the word.`,
+         messages:[{role:"user",content:`Language: ${lang}. Word: ${word}`}]})
+     });
+     const data = await r.json();
+     res.json(JSON.parse(data.content[0].text));
+   });
+   Guarde a chave só no servidor e faça cache por palavra para economizar.
+   ===================================================================== */
+</script>
+</body>
+</html>
