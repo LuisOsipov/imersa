@@ -92,6 +92,14 @@ mark{background:var(--c);color:#0E1B2C;padding:0 4px;border-radius:4px}
 .big{font:400 44px var(--serif)}
 .tipbox{background:var(--lime);color:#0E1B2C;border-radius:14px;padding:14px 18px;margin-top:16px}
 .chk{grid-template-columns:1fr}.wide{padding-bottom:20px}
+.panel{--c:var(--b1)}
+.act{padding:16px 0;border-bottom:1px solid var(--line)}
+.opts2{display:grid;gap:8px;margin-top:10px}
+.opt{border:2px solid var(--line);background:transparent;border-radius:12px;padding:10px 14px;text-align:left}
+.opt[aria-pressed="true"]{border-color:var(--ink);background:color-mix(in srgb,var(--lime) 40%,var(--card))}
+.opt:disabled{opacity:.75}
+.inp{width:100%;margin-top:10px;border:2px solid var(--line);border-radius:12px;padding:10px 14px;background:transparent;color:var(--ink);font:inherit}
+.yes{color:#1a8a4a;font-weight:600;margin:8px 0 0}.no{color:#c0392b;font-weight:600;margin:8px 0 0}
 .iss{border-left:4px solid var(--c);padding:2px 14px;margin:14px 0}.iss p{margin:2px 0;color:var(--muted)}.iss s{opacity:.7}
 .expl{font-size:18px}
 .note{margin-top:26px;font-size:13px;color:var(--muted)}
@@ -112,7 +120,7 @@ mark{background:var(--c);color:#0E1B2C;padding:0 4px;border-radius:4px}
   <section class="hero">
     <h1>Entenda a palavra sem traduzi-la.</h1>
     <p class="sub">Cada palavra é explicada no próprio idioma, no seu nível, com imagem, três frases e áudio. Sem tradução: o significado se forma por contexto.</p>
-    <div class="modes" id="modes"><button type="button" data-m="word" aria-pressed="true">Palavra</button><button type="button" data-m="text" aria-pressed="false">Frase ou dúvida</button></div>
+    <div class="modes" id="modes"><button type="button" data-m="word" aria-pressed="true">Palavra</button><button type="button" data-m="text" aria-pressed="false">Frase ou dúvida</button><button type="button" data-m="practice" aria-pressed="false">Praticar um tema</button></div>
     <form class="search" id="form" role="search">
       <input id="q" type="text" placeholder="bread" autocomplete="off" autocapitalize="off" aria-label="Palavra">
       <button type="submit" id="go">Explicar</button>
@@ -421,12 +429,65 @@ async function checkText(txt){
   }catch(e){ fail(e); }
 }
 
+/* --- praticar um tema: atividades + correção final --- */
+let pr = null;
+const norm = s => String(s||"").toLowerCase().trim().replace(/[.!?,;:]+$/,"").replace(/\s+/g," ");
+async function startPractice(theme){
+  theme = theme.trim(); if(!theme) return;
+  currentKey = ""; busy("Montando suas atividades…");
+  try{
+    const j = await post("/api/practice",{theme,lang,level});
+    pr = {theme, title:j.title||theme, items:j.items||[]}; drawPractice();
+  }catch(e){ fail(e); }
+}
+function drawPractice(){
+  const it = pr.items;
+  $("#out").innerHTML = `<div class="panel"><div class="vhead"><h2>${esc(pr.title)}</h2><span class="badge">${level}</span></div>
+    ${it.map((x,i)=>`<div class="act"><small class="muted">${i+1} de ${it.length}</small><p class="def">${esc(x.q)}</p>
+      ${x.type==="choice" ? `<div class="opts2">${(x.options||[]).map((o,k)=>`<button type="button" class="opt" data-i="${i}" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`
+        : x.type==="fill" ? `<input class="inp" id="in${i}" autocomplete="off" aria-label="Resposta">`
+        : `<textarea class="inp" id="in${i}" rows="3" aria-label="Seu texto"></textarea>`}
+      <div id="fb${i}"></div></div>`).join("")}
+    <div class="row" style="margin-top:18px"><button class="dbtn" id="grade">Corrigir tudo</button></div><div id="score"></div></div>`;
+  document.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    document.querySelectorAll(`.opt[data-i="${b.dataset.i}"]`).forEach(o => o.setAttribute("aria-pressed", o===b));
+    it[b.dataset.i].pick = +b.dataset.k;
+  });
+  $("#grade").onclick = gradePractice;
+}
+async function gradePractice(){
+  const btn = $("#grade"); btn.disabled = true; btn.textContent = "Corrigindo…";
+  let ok = 0, total = 0, written = null;
+  pr.items.forEach((x,i) => {
+    document.querySelectorAll(`.opt[data-i="${i}"]`).forEach(o => o.disabled = true);
+    if(x.type==="write"){ written = {i, txt:$("#in"+i).value.trim()}; return; }
+    total++;
+    let good, right;
+    if(x.type==="choice"){ good = x.pick===x.answer; right = (x.options||[])[x.answer]; }
+    else { const v = norm($("#in"+i).value); right = x.answer; good = !!v && [x.answer,...(x.alts||[])].some(a => norm(a)===v); }
+    if(good) ok++;
+    $("#fb"+i).innerHTML = `<p class="${good?"yes":"no"}">${good ? "✓ Correto" : "✗ Resposta certa: <b>"+esc(right)+"</b>"}</p><p class="muted">${esc(x.why||"")}</p>`;
+  });
+  if(written && written.txt){
+    try{
+      const j = await post("/api/check",{text:written.txt,lang,level});
+      $("#fb"+written.i).innerHTML = (j.corrected ? `<p class="def">${esc(j.corrected)}</p>` : "")
+        + (j.issues||[]).map(x=>`<div class="iss"><s>${esc(x.wrong)}</s> → <b>${esc(x.right)}</b><p>${esc(x.why||"")}</p></div>`).join("")
+        + `<p class="muted">${esc(j.explain||"")}</p>`;
+    }catch(e){ $("#fb"+written.i).innerHTML = `<p class="no">Não consegui corrigir o texto agora.</p>`; }
+  }
+  $("#score").innerHTML = `<p class="tipbox">Você acertou <b>${ok} de ${total}</b> nas questões objetivas. ${ok===total ? "Excelente!" : ok>=total/2 ? "Bom caminho. Releia as explicações dos erros." : "Vale rever o tema e tentar de novo."}</p>
+    <div class="row"><button class="help" id="again">Novas atividades sobre este tema</button></div>`;
+  $("#again").onclick = () => startPractice(pr.theme);
+  btn.remove();
+}
+
 drawVocabBtn(); $("#vocabBtn").onclick = showVocab;
 document.querySelectorAll("#modes button").forEach(b => b.onclick = () => {
   mode = b.dataset.m;
   document.querySelectorAll("#modes button").forEach(x => x.setAttribute("aria-pressed", x===b));
-  $("#q").placeholder = mode==="word" ? "bread" : "Escreva uma frase para corrigir ou faça uma pergunta (ex.: may ou might?)";
-  $("#go").textContent = mode==="word" ? "Explicar" : "Corrigir";
+  $("#q").placeholder = {word:"bread",text:"Escreva uma frase para corrigir ou faça uma pergunta (ex.: may ou might?)",practice:"Qual tema você está estudando? (ex.: passado simples, comida, may e might)"}[mode];
+  $("#go").textContent = {word:"Explicar",text:"Corrigir",practice:"Criar atividades"}[mode];
 });
 
 /* ============ INÍCIO ============ */
@@ -439,7 +500,7 @@ function drawChips(){
 }
 $("#lang").innerHTML = Object.entries(LANGS).map(([k,v]) => `<option value="${k}">${v.name}</option>`).join("");
 drawChips();
-$("#form").onsubmit = e => { e.preventDefault(); mode==="word" ? lookup($("#q").value) : checkText($("#q").value); };
+$("#form").onsubmit = e => { e.preventDefault(); ({word:lookup,text:checkText,practice:startPractice}[mode])($("#q").value); };
 $("#lang").onchange = e => {
   lang = e.target.value; current = null; currentKey = "";
   $("#out").innerHTML = ""; $("#q").value = ""; speechSynthesis.cancel(); drawChips();
