@@ -69,6 +69,31 @@ h1{font:400 clamp(44px,8vw,84px)/.98 var(--serif);margin:0 0 18px;max-width:13ch
 mark{background:var(--c);color:#0E1B2C;padding:0 4px;border-radius:4px}
 .empty{padding:40px;background:var(--card);border-radius:22px;text-align:center;color:var(--muted)}
 .sug{border:0;background:var(--lime);color:#0E1B2C;font:600 18px var(--sans);border-radius:999px;padding:4px 16px;margin:6px 2px}
+.modes{display:inline-flex;background:rgba(255,255,255,.12);border-radius:999px;padding:4px;margin-bottom:12px}
+.modes button{border:0;background:transparent;color:#fff;border-radius:999px;padding:6px 16px;font-weight:600;font-size:14px}
+.modes button[aria-pressed="true"]{background:var(--lime);color:#0E1B2C}
+.save{border:2px solid var(--ink);background:transparent;border-radius:999px;padding:7px 16px;font-weight:600;font-size:14px;margin-left:6px}
+.deepbar{margin-top:16px;text-align:center}
+.dbtn{border:0;background:var(--navy);color:#fff;border-radius:999px;padding:12px 26px;font-weight:600}
+.dbtn:disabled{opacity:.6}
+.deep,.panel{background:var(--card);border-radius:22px;margin-top:16px;padding:10px 28px 24px;box-shadow:0 20px 50px -30px rgba(14,27,44,.5)}
+.deep h3,.sec h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:20px 0 6px}
+.plain{list-style:none;margin:0;padding:0}
+.plain li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;padding:9px 0;border-bottom:1px solid var(--line)}
+.plain li span,.muted,.vi p{color:var(--muted)}
+.tag{display:inline-block;background:color-mix(in srgb,var(--c,var(--b1)) 40%,var(--card));border-radius:999px;padding:1px 11px;font-size:13px;font-weight:600}
+.t-weaker{--c:var(--b1)}.t-similar{--c:var(--a1)}.t-stronger{--c:var(--s2)}
+.mini{width:30px;height:30px;border-radius:50%;border:0;background:var(--lime);color:#0E1B2C;display:inline-grid;place-items:center;flex:none}
+.mini svg{width:13px;height:13px;fill:currentColor}
+.vhead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.vhead h2{font:400 34px var(--serif);margin:14px 0}
+.vi{display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.vi>div{flex:1}.vi p{margin:2px 0 0;font-size:15px}.vemo{font-size:34px}
+.big{font:400 44px var(--serif)}
+.tipbox{background:var(--lime);color:#0E1B2C;border-radius:14px;padding:14px 18px;margin-top:16px}
+.chk{grid-template-columns:1fr}.wide{padding-bottom:20px}
+.iss{border-left:4px solid var(--c);padding:2px 14px;margin:14px 0}.iss p{margin:2px 0;color:var(--muted)}.iss s{opacity:.7}
+.expl{font-size:18px}
 .note{margin-top:26px;font-size:13px;color:var(--muted)}
 @media(max-width:700px){.card{grid-template-columns:1fr}.pic{min-height:230px}.body,.ex{padding-left:22px;padding-right:22px}}
 @media(prefers-reduced-motion:reduce){.play.on{animation:none}}
@@ -80,15 +105,17 @@ mark{background:var(--c);color:#0E1B2C;padding:0 4px;border-radius:4px}
     <div class="logo">imersa<i>.</i></div>
     <div class="opts">
       <select id="lang" aria-label="Idioma"></select>
+      <button class="ghost" id="vocabBtn">Meu vocabulário · 0</button>
       <button class="ghost" id="theme" aria-label="Alternar tema">Tema</button>
     </div>
   </header>
   <section class="hero">
     <h1>Entenda a palavra sem traduzi-la.</h1>
     <p class="sub">Cada palavra é explicada no próprio idioma, no seu nível, com imagem, três frases e áudio. Sem tradução: o significado se forma por contexto.</p>
+    <div class="modes" id="modes"><button type="button" data-m="word" aria-pressed="true">Palavra</button><button type="button" data-m="text" aria-pressed="false">Frase ou dúvida</button></div>
     <form class="search" id="form" role="search">
       <input id="q" type="text" placeholder="bread" autocomplete="off" autocapitalize="off" aria-label="Palavra">
-      <button type="submit">Explicar</button>
+      <button type="submit" id="go">Explicar</button>
     </form>
     <div class="chips" id="chips"><span>Experimente:</span></div>
   </section>
@@ -221,7 +248,7 @@ function render(){
     <div class="body">
       <span class="badge">${badge}</span>
       <div class="word"><h2>${esc(current.word||w)}</h2><span class="ipa">${esc(current.ipa||"")}</span></div>
-      <button class="play" id="say" aria-label="Ouvir a pronúncia">${ICON} Ouvir</button>
+      <button class="play" id="say" aria-label="Ouvir a pronúncia">${ICON} Ouvir</button><button class="save" id="save">${isSaved() ? "★ Salva" : "☆ Salvar"}</button>
       <p class="def">${esc(d.def)}</p>
       <div class="row">
         ${help<2 ? `<button class="help" id="help">${help ? "Ainda não entendi" : "Não entendi"}</button>` : ""}
@@ -231,10 +258,12 @@ function render(){
     <div class="ex"><h3>Veja em uso</h3><ol>
       ${d.ex.slice(0,3).map((s,i)=>`<li><button data-i="${i}" aria-label="Ouvir frase ${i+1}">${ICON}</button><span>${hl(s,w)}</span></li>`).join("")}
     </ol></div>
-  </article>`;
+  </article>
+  <div class="deepbar"><button class="dbtn" id="deepbtn">Aprofundar: relacionadas, colocações e registro</button></div><section id="deep"></section>`;
   $("#say").onclick = e => speak(w, e.currentTarget);
   document.querySelectorAll(".ex li button").forEach(b => b.onclick = () => speak(d.ex[b.dataset.i]));
   if($("#help")) $("#help").onclick = needHelp;
+  $("#save").onclick = toggleSave; $("#deepbtn").onclick = loadDeep; if(current.deep) showDeep();
   if($("#back")) $("#back").onclick = () => { current.help = 0; render(); };
   const putImg = img => {
     const pic = $("#pic"); if(!pic) return;
@@ -289,6 +318,117 @@ function drawLevels(){
   document.querySelectorAll(".lv").forEach(b => b.onclick = () => { level = b.dataset.k; if(current) current.help = 0; drawLevels(); ensureLevel(); });
 }
 
+/* ============ NOVOS RECURSOS ============ */
+let mode = "word", rev = null;
+async function post(path, body){
+  const r = await fetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.error || ("Erro "+r.status));
+  return j;
+}
+const busy = t => { $("#out").innerHTML = `<div class="empty">${t}</div>`; };
+const fail = e => { $("#out").innerHTML = `<div class="empty">Não consegui agora.<br><small>${esc(e.message)}</small></div>`; };
+const rx = w => new RegExp("(?<!\\p{L})("+(w.length>4?w.slice(0,-1):w).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\p{L}*)","giu");
+const exList = (arr) => `<div class="ex"><h3>Veja em uso</h3><ol>${arr.map((s,i)=>`<li><button data-i="${i}" aria-label="Ouvir">${ICON}</button><span>${esc(s)}</span></li>`).join("")}</ol></div>`;
+
+/* --- vocabulário pessoal (salvo no navegador) --- */
+const VK = "imersa_vocab";
+const vocab = () => { try{ return JSON.parse(localStorage.getItem(VK)) || []; }catch(e){ return []; } };
+const drawVocabBtn = () => { $("#vocabBtn").textContent = "Meu vocabulário · " + vocab().length; };
+const putVocab = a => { try{ localStorage.setItem(VK, JSON.stringify(a)); }catch(e){} drawVocabBtn(); };
+const isSaved = () => vocab().some(v => v.lang===lang && v.w===currentKey);
+function toggleSave(){
+  let a = vocab();
+  if(isSaved()) a = a.filter(v => !(v.lang===lang && v.w===currentKey));
+  else {
+    const d = current[level] || current.A1 || current.B1 || current.C1;
+    a.push({w:currentKey, lang, word:current.word||currentKey, ipa:current.ipa||"", emoji:current.emoji||"", def:d.def, ex:d.ex, ok:0, no:0});
+  }
+  putVocab(a); $("#save").textContent = isSaved() ? "★ Salva" : "☆ Salvar";
+}
+function showVocab(){
+  currentKey = ""; rev = null;
+  const a = vocab().filter(v => v.lang===lang);
+  $("#out").innerHTML = `<div class="panel"><div class="vhead"><h2>Meu vocabulário · ${LANGS[lang].name}</h2><div class="row">
+    <button class="help" id="vrev" ${a.length?"":"disabled"}>Revisar</button>
+    <button class="help" id="vsum" ${a.length>1?"":"disabled"}>Resumo inteligente</button></div></div>
+    <div id="vbox">${a.length ? a.map(v=>`<div class="vi"><span class="vemo">${v.emoji||"💬"}</span><div><b>${esc(v.word)}</b> <small>${esc(v.ipa)}</small><p>${esc(v.def)}</p></div>
+      <button class="mini" data-a="say" data-w="${esc(v.w)}" aria-label="Ouvir">${ICON}</button><button class="back" data-a="del" data-w="${esc(v.w)}">remover</button></div>`).join("")
+      : `<p class="muted">Nenhuma palavra salva neste idioma. Pesquise uma palavra e clique em ☆ Salvar.</p>`}</div></div>`;
+  document.querySelectorAll("#vbox [data-a]").forEach(b => b.onclick = () => {
+    const v = a.find(x => x.w===b.dataset.w);
+    if(b.dataset.a==="say") speak(v.word);
+    else { putVocab(vocab().filter(x => !(x.lang===lang && x.w===v.w))); showVocab(); }
+  });
+  $("#vrev").onclick = () => { rev = {a:[...a].sort((x,y)=>(x.ok-x.no)-(y.ok-y.no)), i:0}; stepReview(); };
+  $("#vsum").onclick = summarize;
+}
+function stepReview(){
+  const {a,i} = rev, box = $("#vbox");
+  if(i>=a.length){ box.innerHTML = `<p class="def">Revisão concluída. 🎉</p>`; return; }
+  const v = a[i], cloze = esc((v.ex||[])[0]||"").replace(rx(v.w), "_____");
+  box.innerHTML = `<small class="muted">${i+1} de ${a.length}</small><p class="def">${esc(v.def)}</p><p>${cloze}</p>
+    <div class="row" id="ans"><button class="help" id="show">Mostrar a palavra</button></div>`;
+  $("#show").onclick = () => {
+    $("#ans").innerHTML = `<b class="big">${esc(v.word)}</b><button class="mini" id="rs" aria-label="Ouvir">${ICON}</button><button class="help" id="ok">Lembrei</button><button class="help" id="no">Ainda não</button>`;
+    speak(v.word); $("#rs").onclick = () => speak(v.word);
+    const fin = g => { const all = vocab(), t = all.find(x => x.lang===v.lang && x.w===v.w); if(t){ t[g]++; putVocab(all); } rev.i++; stepReview(); };
+    $("#ok").onclick = () => fin("ok"); $("#no").onclick = () => fin("no");
+  };
+}
+async function summarize(){
+  $("#vbox").innerHTML = '<p class="muted">Organizando suas palavras…</p>';
+  try{
+    const j = await post("/api/summary",{lang,level,words:vocab().filter(v=>v.lang===lang).map(v=>v.word)});
+    $("#vbox").innerHTML = (j.groups||[]).map(g=>`<div class="sec"><h3>${esc(g.theme)}</h3><p>${(g.words||[]).map(w=>`<span class="tag">${esc(w)}</span>`).join(" ")}</p><p class="muted">${esc(g.note||"")}</p></div>`).join("")
+      + (j.tip ? `<p class="tipbox">${esc(j.tip)}</p>` : "");
+  }catch(e){ $("#vbox").innerHTML = `<p>Não consegui agora.<br><small>${esc(e.message)}</small></p>`; }
+}
+
+/* --- aprofundar: registro, colocações, relacionadas, diferenças --- */
+async function loadDeep(){
+  const w = currentKey, b = $("#deepbtn"); b.textContent = "Preparando…"; b.disabled = true;
+  try{ current.deep = await post("/api/deep",{word:w,lang,level}); }
+  catch(e){ b.textContent = "Não consegui agora. Tente de novo"; b.disabled = false; return; }
+  if(currentKey===w) showDeep();
+}
+function showDeep(){
+  const d = current.deep, r = d.register||{}, el = $("#deep"); if(!el) return;
+  $("#deepbtn")?.remove();
+  const FM = {formal:"Formal",neutral:"Neutra",informal:"Informal"}, MD = {spoken:"Mais falada",written:"Mais escrita",both:"Fala e escrita"};
+  const TG = {weaker:"mais fraca",similar:"parecida",stronger:"mais forte"};
+  el.innerHTML = `<div class="deep">
+    <h3>Registro</h3><p><span class="tag">${FM[r.formality]||esc(r.formality||"")}</span> <span class="tag">${MD[r.medium]||esc(r.medium||"")}</span> ${esc(r.note||"")}</p>
+    <h3>Combinações naturais</h3><ul class="plain">${(d.collocations||[]).map(c=>`<li><button class="mini" data-s="${esc(c.phrase)}" aria-label="Ouvir">${ICON}</button><b>${esc(c.phrase)}</b><span>${esc(c.note||"")}</span></li>`).join("")}</ul>
+    <h3>Palavras relacionadas</h3><ul class="plain">${(d.related||[]).map(x=>`<li><b>${esc(x.word)}</b><span class="tag t-${esc(x.intensity)}">${TG[x.intensity]||""}</span><span>${esc(x.note||"")}</span></li>`).join("")}</ul>
+    <h3>Não dá para trocar</h3><ul class="plain">${(d.contrast||[]).map(x=>`<li><b>${esc(x.pair)}</b><span>${esc(x.rule||"")}</span></li>`).join("")}</ul></div>`;
+  el.querySelectorAll(".mini").forEach(b => b.onclick = () => speak(b.dataset.s));
+}
+
+/* --- corrigir frases e tirar dúvidas de gramática --- */
+async function checkText(txt){
+  txt = txt.trim(); if(!txt) return;
+  currentKey = ""; busy("Analisando seu texto…");
+  try{
+    const j = await post("/api/check",{text:txt,lang,level});
+    $("#out").innerHTML = `<article class="card chk" data-lv="${level}"><div class="body wide">
+      <span class="badge">${j.kind==="answer" ? "Resposta" : "Correção"} · ${level}</span>
+      ${j.corrected ? `<p class="def">${esc(j.corrected)}</p><button class="play" id="say" aria-label="Ouvir">${ICON} Ouvir</button>` : ""}
+      ${(j.issues||[]).map(i=>`<div class="iss"><s>${esc(i.wrong)}</s> → <b>${esc(i.right)}</b><p>${esc(i.why||"")}</p></div>`).join("")}
+      <p class="expl">${esc(j.explain||"")}</p></div>${(j.ex||[]).length ? exList(j.ex) : ""}</article>`;
+    if($("#say")) $("#say").onclick = e => speak(j.corrected, e.currentTarget);
+    document.querySelectorAll(".ex li button").forEach(b => b.onclick = () => speak(j.ex[b.dataset.i]));
+  }catch(e){ fail(e); }
+}
+
+drawVocabBtn(); $("#vocabBtn").onclick = showVocab;
+document.querySelectorAll("#modes button").forEach(b => b.onclick = () => {
+  mode = b.dataset.m;
+  document.querySelectorAll("#modes button").forEach(x => x.setAttribute("aria-pressed", x===b));
+  $("#q").placeholder = mode==="word" ? "bread" : "Escreva uma frase para corrigir ou faça uma pergunta (ex.: may ou might?)";
+  $("#go").textContent = mode==="word" ? "Explicar" : "Corrigir";
+});
+
 /* ============ INÍCIO ============ */
 function drawChips(){
   $("#chips").innerHTML = "<span>Experimente:</span>";
@@ -299,7 +439,7 @@ function drawChips(){
 }
 $("#lang").innerHTML = Object.entries(LANGS).map(([k,v]) => `<option value="${k}">${v.name}</option>`).join("");
 drawChips();
-$("#form").onsubmit = e => { e.preventDefault(); lookup($("#q").value); };
+$("#form").onsubmit = e => { e.preventDefault(); mode==="word" ? lookup($("#q").value) : checkText($("#q").value); };
 $("#lang").onchange = e => {
   lang = e.target.value; current = null; currentKey = "";
   $("#out").innerHTML = ""; $("#q").value = ""; speechSynthesis.cancel(); drawChips();
@@ -308,7 +448,7 @@ let darkOn = matchMedia("(prefers-color-scheme: dark)").matches;
 $("#theme").onclick = () => { darkOn = !darkOn; document.documentElement.dataset.theme = darkOn ? "dark" : "light"; };
 if("speechSynthesis" in window) speechSynthesis.getVoices();
 const SAMPLES = ["bread","pan","pain","Brot","pane","パン","面包"]; let si = 0;
-setInterval(() => { if(document.activeElement!==$("#q")) $("#q").placeholder = SAMPLES[si = (si+1)%SAMPLES.length]; }, 2200);
+setInterval(() => { if(mode==="word" && document.activeElement!==$("#q")) $("#q").placeholder = SAMPLES[si = (si+1)%SAMPLES.length]; }, 2200);
 drawLevels();
 
 /* =====================================================================
